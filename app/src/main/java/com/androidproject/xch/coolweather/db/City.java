@@ -1,8 +1,8 @@
 package com.androidproject.xch.coolweather.db;
 
-import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
 
-public class City extends LitePal {
+public class City extends LitePalSupport {
 
     private int id;
     private String cityName;
