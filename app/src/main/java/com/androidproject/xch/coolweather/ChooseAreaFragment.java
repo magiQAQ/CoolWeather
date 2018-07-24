@@ -14,16 +14,24 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androidproject.xch.coolweather.db.City;
 import com.androidproject.xch.coolweather.db.County;
 import com.androidproject.xch.coolweather.db.Province;
+import com.androidproject.xch.coolweather.util.HttpUtil;
+import com.androidproject.xch.coolweather.util.Utility;
 
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class ChooseAreaFragment extends Fragment {
 
@@ -149,8 +157,49 @@ public class ChooseAreaFragment extends Fragment {
     }
 
     private void queryFromServer(String address, final String type) {
+        showProgressBar();
+        HttpUtil.sendOkHttpRequest(address, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressBar();
+                        Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
 
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseText = response.body().string();
+                boolean result = false;
+                if ("province".equals(type)) {
+                    result = Utility.handleProvinceResponse(responseText);
+                } else if ("city".equals(type)) {
+                    result = Utility.handleCityResponse(responseText,selectedProvince.getId());
+                } else if ("county".equals(type)) {
+                    result = Utility.handleCountyResponse(responseText,selectedCity.getId());
+                }
+                if (result) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            closeProgressBar();
+                            if ("province".equals(type)) {
+                                queryProvinces();
+                            } else if ("city".equals(type)) {
+                                queryCities();
+                            } else if ("county".equals(type)) {
+                                queryCounties();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
+
 
     private void showProgressBar() {
         if (progressBar.getVisibility() == View.GONE) {
