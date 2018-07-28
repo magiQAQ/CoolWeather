@@ -1,5 +1,6 @@
 package com.androidproject.xch.coolweather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.androidproject.xch.coolweather.gson.Forecast;
 import com.androidproject.xch.coolweather.gson.Weather;
+import com.androidproject.xch.coolweather.service.AutoUpdateService;
 import com.androidproject.xch.coolweather.util.HttpUtil;
 import com.androidproject.xch.coolweather.util.Utility;
 import com.bumptech.glide.Glide;
@@ -200,6 +202,8 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText.setText(carWash);
         sportText.setText(sport);
         weatherLayout.setVisibility(View.VISIBLE);
+        Intent intent = new Intent(WeatherActivity.this, AutoUpdateService.class);
+        startService(intent);
     }
     //下拉刷新
     private void setSwipeRefresh() {
