@@ -1,6 +1,7 @@
 package com.androidproject.xch.coolweather;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -45,9 +46,15 @@ public class WeatherActivity extends AppCompatActivity {
         setContentView(R.layout.activity_weather);
         initControls();
         getDataIfPrefsExist();
-
+        mixStatusBarAndBackgroundPic();
     }
-
+    //实现背景图与状态栏融合效果
+    private void mixStatusBarAndBackgroundPic() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+    }
+    //得到缓存数据
     private void getDataIfPrefsExist() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);//找到缓存
         String weatherString = prefs.getString("weather",null);
@@ -66,7 +73,7 @@ public class WeatherActivity extends AppCompatActivity {
             loadBingPic();
         }
     }
-
+    //加载背景图
     private void loadBingPic() {
         String requestBingPic = "http://guolin.tech/api/bing_pic";
         HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
@@ -90,8 +97,8 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void requestWeather(final String weatherId) {//根据weatherId请求城市天气信息
+    //根据weatherId请求城市天气信息
+    private void requestWeather(final String weatherId) {
         String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=d2b40ca7a5d440ab90b68e6ad755e560";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
@@ -126,8 +133,8 @@ public class WeatherActivity extends AppCompatActivity {
         });
         loadBingPic();
     }
-
-    private void initControls() {//各控件的初始化
+    //各控件的初始化
+    private void initControls() {
         weatherLayout = findViewById(R.id.weather_layout);
         titleCity = findViewById(R.id.title_city);
         titleUpdateTime = findViewById(R.id.title_update_time);
@@ -141,8 +148,7 @@ public class WeatherActivity extends AppCompatActivity {
         sportText = findViewById(R.id.sport_text);
         bingPicImg = findViewById(R.id.bing_pic_img);
     }
-
-
+    //将获得的数据在控件中显示
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1];
